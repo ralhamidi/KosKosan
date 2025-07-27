@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartKos - Pencari Kosan Modern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-pattern {
+            background-image: url('https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9e68d343-1dc3-418e-b1b3-5d411241beaf.png');
+        }
+        
+        .recommendation-gradient {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        }
+        
+        .kos-card {
+            transition: all 0.3s ease;
+        }
+        
+        .kos-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+        
+        .notification-badge {
+            display: inline-block;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Notification Center -->
+    <div id="notification-center" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-white p-4 rounded-lg shadow-lg max-w-xs">
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold">Notifikasi</h4>
+                <button onclick="hideNotifications()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="notification-list" class="text-sm space-y-2">
+                <!-- Notifications will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7a938532-290b-4371-a075-afbafdac04b8.png" alt="SmartKos logo - simple black and white building icon" class="mr-2">
+                <h1 class="text-xl font-bold text-gray-900">Smart<span class="text-gray-600">Kos</span></h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleNotifications()" class="relative p-2 text-gray-700 hover:text-black">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-count" class="notification-badge hidden"></span>
+                </button>
+                <button id="login-btn" class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800">
+                    Masuk/Daftar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-pattern bg-cover bg-center py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4 text-white">Temukan Kosan Ideal Anda</h2>
+            <p class="text-xl text-white mb-8">Cerdas, cepat, dan sesuai budget dengan rekomendasi AI kami</p>
+            
+            <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="location">
+                            <i class="fas fa-map-marker-alt mr-2"></i>Lokasi
+                        </label>
+                        <input type="text" id="location" placeholder="Masukkan lokasi (contoh: Jakarta Pusat)" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="price-range">
+                            <i class="fas fa-tags mr-2"></i>Harga
+                        </label>
+                        <select id="price-range" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <option value="">Semua Harga</option>
+                            <option value="100000-500000">Rp100-500 rb</option>
+                            <option value="500000-1000000">Rp500-1 jt</option>
+                            <option value="1000000-2000000">Rp1-2 jt</option>
+                            <option value="2000000">> Rp2 jt</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-gray-700 text-sm font-bold mb-2 text-left" for="kos-type">
+                            <i class="fas fa-home mr-2"></i>Tipe
+                        </label>
+                        <select id="kos-type" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <option value="">Semua Tipe</option>
+                            <option value="putra">Putra</option>
+                            <option value="putri">Putri</option>
+                            <option value="campur">Campur</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="searchKos()" class="w-full md:w-auto px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800">
+                            <i class="fas fa-search mr-2"></i>Cari
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- AI Recommendation Section -->
+        <section class="mb-16 recommendation-gradient rounded-lg p-6">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold">
+                    <i class="fas fa-star mr-2"></i>Rekomendasi untuk Anda
+                </h2>
+                <div class="mt-4 md:mt-0">
+                    <button onclick="refreshRecommendations()" class="text-sm text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-sync-alt mr-1"></i>Refresh Rekomendasi
+                    </button>
+                </div>
+            </div>
+            
+            <div id="recommended-kos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Recommended kos will be loaded here -->
+            </div>
+        </section>
+        
+        <!-- All Kos Section -->
+        <section>
+            <h2 class="text-2xl font-bold mb-8">
+                <i class="fas fa-list mr-2"></i>Daftar Kosan
+            </h2>
+            
+            <div id="no-results" class="text-center py-12 hidden">
+                <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Tidak ada hasil yang ditemukan</h3>
+                <p class="text-gray-600 mb-4">Coba ubah kriteria pencarian Anda</p>
+                <button onclick="resetSearch()" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
+                    Reset Pencarian
+                </button>
+            </div>
+            
+            <div id="kos-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kos listings will be loaded here -->
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="#" class="px-4 py-2 border-t border-b border-gray-300 bg-gray-100 text-gray-700">
+                        1
+                    </a>
+                    <a href="#" class="px-4 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        2
+                    </a>
+                    <a href="#" class="px-4 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        3
+                    </a>
+                    <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6f8fb4fe-9fed-4231-a3fa-b8516f69335e.png" alt="SmartKos logo - simple white building icon" class="mb-4">
+                    <h3 class="text-xl font-bold mb-4">Smart<span class="text-gray-400">Kos</span></h3>
+                    <p class="text-gray-400 mb-4">Solusi pencarian kosan modern berbasis AI untuk generasi milenial.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Perusahaan</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Tentang Kami</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Karis</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Mitra Kami</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Bantuan</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Cara Pembayaran</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Kebijakan Privasi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Syarat & Ketentuan</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Kontak</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-map-marker-alt mr-2"></i> Jakarta, Indonesia
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope mr-2"></i> hello@smartkos.id
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-phone mr-2"></i> +62 21 1234 5678
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-400">
+                <p>© 2023 SmartKos. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Kos Detail Modal -->
+    <div id="kos-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+                
+                <div id="kos-detail" class="p-6">
+                    <!-- Kos detail will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h3 class="text-2xl font-bold mb-6 text-center">Masuk ke SmartKos</h3>
+                
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                        <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password</label>
+                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600" required>
+                    </div>
+                    <button type="submit" class="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 font-medium">
+                        Masuk
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-gray-600 text-sm">Belum punya akun? <a href="#" onclick="showRegister()" class="text-gray-900 font-medium hover:underline">Daftar sekarang</a></p>
+                    <p class="text-gray-600 text-sm mt-2">Atau lanjut dengan</p>
+                    <div class="flex justify-center space-x-4 mt-2">
+                        <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i class="fab fa-google text-red-500"></i>
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i class="fab fa-facebook-f text-blue-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h3 class="text-2xl font-bold mb-6 text-center">Pembayaran</h3>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold mb-2">Detail Penyewaan</h4>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Kosan:</span>
+                            <span class="font-medium" id="payment-kos-name">Kosan Mawar Indah</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Lama Sewa:</span>
+                            <span class="font-medium">1 Bulan</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Pembayaran:</span>
+                            <span class="font-medium" id="payment-total">Rp1.200.000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="font-bold mb-3">Metode Pembayaran</h4>
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center p-3 border border-gray-300 rounded-md hover:border-gray-600 cursor-pointer">
+                        <input type="radio" name="payment-method" id="gopay" checked class="mr-3">
+                        <label for="gopay" class="flex-1 flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5b6e4551-62fd-45c1-91a8-738503ab124c.png" alt="Gopay payment method logo" class="h-6 mr-3">
+                            <span>Gopay</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-300 rounded-md hover:border-gray-600 cursor-pointer">
+                        <input type="radio" name="payment-method" id="ovo" class="mr-3">
+                        <label for="ovo" class="flex-1 flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/22811e2e-1f24-41ce-983e-b00965786bb2.png" alt="OVO payment method logo" class="h-6 mr-3">
+                            <span>OVO</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-300 rounded-md hover:border-gray-600 cursor-pointer">
+                        <input type="radio" name="payment-method" id="dana" class="mr-3">
+                        <label for="dana" class="flex-1 flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/909c0077-7c3d-4019-989c-a2b14e057576.png" alt="DANA payment method logo" class="h-6 mr-3">
+                            <span>DANA</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-300 rounded-md hover:border-gray-600 cursor-pointer">
+                        <input type="radio" name="payment-method" id="bank-transfer" class="mr-3">
+                        <label for="bank-transfer" class="flex-1 flex items-center">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/549d9212-4800-472d-a888-7801e1eccc87.png" alt="Bank transfer icon" class="h-6 mr-3">
+                            <span>Transfer Bank</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button onclick="processPayment()" class="w-full py-2 bg-black text-white rounded-md hover:bg-gray-800 font-medium">
+                    Bayar Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for kosan
+        const kosanData = [
+            {
+                id: 1,
+                name: "Kosan Mawar Indah",
+                price: 1200000,
+                discount: 0.1,
+                location: "Jakarta Pusat",
+                type: "putri",
+                distance: 0.8,
+                rating: 4.7,
+                reviews: 128,
+                facilities: ["AC", "Kamar Mandi Dalam", "Dapur Bersama", "Laundry", "Wifi"],
+                description: "Kosan eksklusif untuk putri dengan fasilitas lengkap di lokasi strategis dekat kampus dan pusat perbelanjaan.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2de6fc35-7e01-4faa-be14-921e52f0723f.png"
+            },
+            {
+                id: 2,
+                name: "Kos Bintang Timur",
+                price: 850000,
+                discount: 0,
+                location: "Jakarta Selatan",
+                type: "putra",
+                distance: 1.2,
+                rating: 4.2,
+                reviews: 86,
+                facilities: ["Kipas Angin", "Kamar Mandi Dalam", "Wifi"],
+                description: "Kosan nyaman untuk putra dengan harga terjangkau dan lokasi dekat stasiun kereta.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/560d8593-c9b4-4351-897b-50505148816e.png"
+            },
+            {
+                id: 3,
+                name: "Kos Harmoni",
+                price: 1500000,
+                discount: 0.15,
+                location: "Jakarta Barat",
+                type: "campur",
+                distance: 2.5,
+                rating: 4.5,
+                reviews: 210,
+                facilities: ["AC", "Kamar Mandi Dalam", "Dapur Bersama", "Laundry", "Wifi", "Ruang Tamu", "Parkir Motor"],
+                description: "Kosan modern untuk putra dan putri dengan konsep co-living dan komunitas yang aktif.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/16a52408-4c9d-458c-a9c1-e236d0a8b435.png"
+            },
+            {
+                id: 4,
+                name: "Pondok Mentari",
+                price: 950000,
+                discount: 0.05,
+                location: "Bekasi",
+                type: "putra",
+                distance: 5.3,
+                rating: 4.0,
+                reviews: 72,
+                facilities: ["Kipas Angin", "Kamar Mandi Luar", "Kulkas Bersama"],
+                description: "Pondokan nyaman untuk mahasiswa dengan suasana kekeluargaan dan lingkungan yang asri.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7e047222-39ac-4c35-b4be-5f1aff3e530c.png"
+            },
+            {
+                id: 5,
+                name: "Kosan Melati",
+                price: 1800000,
+                discount: 0,
+                location: "Tangerang",
+                type: "putri",
+                distance: 3.8,
+                rating: 4.8,
+                reviews: 156,
+                facilities: ["AC", "Kamar Mandi Dalam", "Dapur Bersama", "Wifi", "Ruang Tamu", "Parkir Motor", "Cleaning Service"],
+                description: "Kosan premium khusus putri dengan keamanan 24 jam dan fasilitas bintang 5.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/bf82ef58-f3d5-4c5d-982b-82968d72cf23.png"
+            },
+            {
+                id: 6,
+                name: "Kos Kenanga",
+                price: 700000,
+                discount: 0,
+                location: "Depok",
+                type: "campur",
+                distance: 4.2,
+                rating: 3.8,
+                reviews: 64,
+                facilities: ["Kipas Angin", "Kamar Mandi Luar"],
+                description: "Kosan sederhana namun nyaman dengan harga sangat terjangkau untuk mahasiswa.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/db580ad7-e964-41b9-939e-8a4b5eeda2ee.png"
+            },
+            {
+                id: 7,
+                name: "Kos Sejahtera",
+                price: 600000,
+                discount: 0.1,
+                location: "Jakarta Timur",
+                type: "putra",
+                distance: 2.1,
+                rating: 3.5,
+                reviews: 42,
+                facilities: ["Kipas Angin", "Kamar Mandi Luar"],
+                description: "Kosan ekonomis untuk pekerja dengan lokasi dekat kawasan industri.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e28e40f0-81bb-428d-a666-0bc395eff17b.png"
+            },
+            {
+                id: 8,
+                name: "Kos Bunda",
+                price: 950000,
+                discount: 0,
+                location: "Jakarta Utara",
+                type: "putri",
+                distance: 1.8,
+                rating: 4.3,
+                reviews: 93,
+                facilities: ["Kipas Angin", "Kamar Mandi Dalam", "Wifi", "Dapur Bersama"],
+                description: "Kosan nyaman dengan pengelolaan yang dikelola langsung oleh pemilik rumah.",
+                image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8137808f-77d6-4729-87ef-88203e656bcb.png"
+            }
+        ];
+
+        // Simulate user preferences for AI recommendations
+        const userPreferences = {
+            budget: 1500000,
+            preferredFacilities: ["AC", "Wifi", "Kamar Mandi Dalam"],
+            preferredLocation: "Jakarta Pusat",
+            preferredType: null
+        };
+
+        // Current search filters
+        let currentSearchFilters = {
+            location: "",
+            priceRange: "",
+            type: ""
+        };
+
+        // Notifications
+        let notifications = [
+            {
+                id: 1,
+                title: "Pembayaran Berhasil",
+                message: "Pembayaran untuk Kos Bintang Timur telah berhasil diproses.",
+                time: "2 jam yang lalu",
+                read: false
+            },
+            {
+                id: 2,
+                title: "Rekomendasi Baru",
+                message: "Kami menemukan kos baru di dekat lokasi Anda: Kos Sejahtera.",
+                time: "1 hari yang lalu",
+                read: true
+            }
+        ];
+
+        // DOM Elements
+        const recommendedKosEl = document.getElementById('recommended-kos');
+        const kosListEl = document.getElementById('kos-list');
+        const noResultsEl = document.getElementById('no-results');
+        const kosModalEl = document.getElementById('kos-modal');
+        const kosDetailEl = document.getElementById('kos-detail');
+        const loginModalEl = document.getElementById('login-modal');
+        const paymentModalEl = document.getElementById('payment-modal');
+        const notificationCenterEl = document.getElementById('notification-center');
+        const notificationListEl = document.getElementById('notification-list');
+        const notificationCountEl = document.getElementById('notification-count');
+        const loginBtn = document.getElementById('login-btn');
+
+        // Dictionary for kos types
+        const kosTypeNames = {
+            putra: "Putra",
+            putri: "Putri",
+            campur: "Campur"
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecommendedKos();
+            loadAllKos();
+            updateNotificationBadge();
+            
+            // Add event listeners
+            document.getElementById('login-btn').addEventListener('click', showLoginModal);
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loginUser();
+            });
+        });
+
+        // Load recommended kos based on user preferences (simulated AI)
+        function loadRecommendedKos() {
+            const recommendations = getRecommendedKos();
+            recommendedKosEl.innerHTML = '';
+            
+            if (recommendations.length === 0) {
+                recommendedKosEl.innerHTML = '<p class="text-gray-600">Tidak ada rekomendasi saat ini.</p>';
+                return;
+            }
+            
+            recommendations.slice(0, 3).forEach(kos => {
+                recommendedKosEl.appendChild(createKosCard(kos, true));
+            });
+        }
+
+        // AI Recommendation Algorithm (simplified)
+        function getRecommendedKos() {
+            // Filter based on user preferences
+            let filtered = kosanData.filter(kos => {
+                // Budget match (with 20% tolerance)
+                const withinBudget = kos.price <= userPreferences.budget * 1.2;
+                
+                // Facility match (at least one preferred facility)
+                const hasFacility = userPreferences.preferredFacilities.some(facility => 
+                    kos.facilities.includes(facility)
+                );
+                
+                // Location match (within 3 km of preferred location)
+                const nearLocation = userPreferences.preferredLocation ? 
+                    kos.location.includes(userPreferences.preferredLocation.split(' ')[0]) || 
+                    kos.distance <= 3 : true;
+                
+                // Type match if specified
+                const typeMatch = userPreferences.preferredType ? 
+                    kos.type === userPreferences.preferredType : true;
+                
+                return withinBudget && hasFacility && nearLocation && typeMatch;
+            });
+            
+            // Sort by: rating (high to low), then distance (near to far), then price (low to high)
+            filtered.sort((a, b) => {
+                if (b.rating !== a.rating) return b.rating - a.rating;
+                if (a.distance !== b.distance) return a.distance - b.distance;
+                return a.price - b.price;
+            });
+            
+            return filtered;
+        }
+
+        // Load all kos (or filtered kos)
+        function loadAllKos(filters = {}) {
+            let filteredKos = [...kosanData];
+            
+            // Apply location filter
+            if (filters.location) {
+                const locationLower = filters.location.toLowerCase();
+                filteredKos = filteredKos.filter(kos => 
+                    kos.location.toLowerCase().includes(locationLower) || 
+                    kos.name.toLowerCase().includes(locationLower)
+                );
+            }
+            
+            // Apply price range filter
+            if (filters.priceRange) {
+                const [min, max] = filters.priceRange.split('-').map(Number);
+                filteredKos = filteredKos.filter(kos => {
+                    if (!max) return kos.price >= min;
+                    return kos.price >= min && kos.price <= max;
+                });
+            }
+            
+            // Apply type filter
+            if (filters.type) {
+                filteredKos = filteredKos.filter(kos => kos.type === filters.type);
+            }
+            
+            kosListEl.innerHTML = '';
+            
+            if (filteredKos.length === 0) {
+                noResultsEl.classList.remove('hidden');
+            } else {
+                noResultsEl.classList.add('hidden');
+                filteredKos.forEach(kos => {
+                    kosListEl.appendChild(createKosCard(kos, false));
+                });
+            }
+        }
+
+        // Create kos card element
+        function createKosCard(kos, isRecommended = false) {
+            const card = document.createElement('div');
+            card.className = 'kos-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg';
+            
+            // Calculate discounted price
+            const discountedPrice = kos.price * (1 - kos.discount);
+            
+            card.innerHTML = `
+                <div class="relative">
+                    <img src="${kos.image}" alt="${kos.name} - ${kos.description}" class="w-full h-48 object-cover">
+                    ${kos.discount > 0 ? `
+                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            ${Math.round(kos.discount * 100)}% OFF
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">${kos.name}</h3>
+                        <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                            ${kosTypeNames[kos.type]}
+                        </span>
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <div class="flex text-yellow-400 mr-2">
+                            ${Array(Math.floor(kos.rating)).fill('<i class="fas fa-star"></i>').join('')}
+                            ${kos.rating % 1 > 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                            ${Array(5 - Math.ceil(kos.rating)).fill('<i class="far fa-star"></i>').join('')}
+                        </div>
+                        <span class="text-gray-600 text-sm">(${kos.reviews})</span>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-gray-600 text-sm">
+                            <i class="fas fa-map-marker-alt mr-1"></i> ${kos.location} - ${kos.distance} km
+                        </p>
+                    </div>
+                    <div class="mb-4">
+                        ${
+                            kos.facilities.slice(0, 3).map(facility => `
+                                <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-700 mr-2 mb-2">
+                                    ${facility}
+                                </span>
+                            `).join('')
+                        }
+                        ${kos.facilities.length > 3 ? '<span class="text-gray-500 text-xs">+ more</span>' : ''}
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-900 font-bold">${formatCurrency(discountedPrice)}</p>
+                            ${kos.discount > 0 ? `
+                                <p class="text-gray-500 text-sm line-through">${formatCurrency(kos.price)}</p>
+                            ` : ''}
+                        </div>
+                        <button onclick="viewKosDetail(${kos.id})" class="px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
+                            Lihat Detail
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            if (isRecommended) {
+                card.classList.add('border-l-4', 'border-gray-800');
+            }
+            
+            return card;
+        }
+
+        // View kos detail
+        function viewKosDetail(id) {
+            const kos = kosanData.find(k => k.id === id);
+            if (!kos) return;
+            
+            const discountedPrice = kos.price * (1 - kos.discount);
+            
+            kosDetailEl.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <img src="${kos.image}" alt="Detail ${kos.name} - ${kos.description}" class="w-full rounded-lg">
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">${kos.name}</h2>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-yellow-400 mr-2">
+                                ${Array(Math.floor(kos.rating)).fill('<i class="fas fa-star"></i>').join('')}
+                                ${kos.rating % 1 > 0 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                                ${Array(5 - Math.ceil(kos.rating)).fill('<i class="far fa-star"></i>').join('')}
+                            </div>
+                            <span class="text-gray-600">${kos.rating} (${kos.reviews} ulasan)</span>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-600">Lokasi:</span>
+                                <span class="font-medium">${kos.location}, ${kos.distance} km dari sini</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-600">Tipe:</span>
+                                <span class="font-medium text-capitalize">${kosTypeNames[kos.type]}</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-600">Harga Bulanan:</span>
+                                <span class="font-medium">${formatCurrency(discountedPrice)}</span>
+                            </div>
+                            ${kos.discount > 0 ? `
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Harga Normal:</span>
+                                    <span class="font-medium line-through">${formatCurrency(kos.price)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-bold mb-2">Deskripsi</h4>
+                            <p class="text-gray-700">${kos.description}</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-bold mb-2">Fasilitas</h4>
+                            <div class="flex flex-wrap">
+                                ${kos.facilities.map(facility => `
+                                    <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-700 mr-2 mb-2">
+                                        <i class="fas fa-check mr-1"></i> ${facility}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <button onclick="bookKos(${kos.id})" class="w-full py-3 bg-black text-white rounded-md hover:bg-gray-800 font-medium">
+                            Pesan Sekarang
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            kosModalEl.classList.remove('hidden');
+        }
+
+        // Book kos
+        function bookKos(id) {
+            const kos = kosanData.find(k => k.id === id);
+            if (!kos) return;
+            
+            // If not logged in, show login modal first
+            if (!document.body.classList.contains('logged-in')) {
+                closeModal();
+                showLoginModal();
+                addNotification('Silakan login untuk melanjutkan pemesanan', 'Peringatan');
+                return;
+            }
+            
+            // Set payment details
+            document.getElementById('payment-kos-name').textContent = kos.name;
+            document.getElementById('payment-total').textContent = formatCurrency(kos.price * (1 - kos.discount));
+            
+            closeModal();
+            paymentModalEl.classList.remove('hidden');
+        }
+
+        // Process payment
+        function processPayment() {
+            // Simulate payment processing
+            setTimeout(() => {
+                closePaymentModal();
+                addNotification('Pembayaran Anda berhasil diproses', 'Pembayaran Berhasil');
+                
+                // Show success message
+                alert('Pembayaran berhasil! Terima kasih telah menggunakan SmartKos.');
+            }, 1500);
+        }
+
+        // Search kos
+        function searchKos() {
+            currentSearchFilters = {
+                location: document.getElementById('location').value,
+                priceRange: document.getElementById('price-range').value,
+                type: document.getElementById('kos-type').value
+            };
+            
+            loadAllKos(currentSearchFilters);
+        }
+
+        // Reset search
+        function resetSearch() {
+            document.getElementById('location').value = '';
+            document.getElementById('price-range').value = '';
+            document.getElementById('kos-type').value = '';
+            
+            currentSearchFilters = {
+                location: '',
+                priceRange: '',
+                type: ''
+            };
+            
+            loadAllKos();
+        }
+
+        // Refresh recommendations
+        function refreshRecommendations() {
+            // Simulate changing preferences slightly
+            userPreferences.budget = 1000000 + Math.floor(Math.random() * 1000000);
+            
+            // Give feedback
+            addNotification('Rekomendasi kos telah diperbarui berdasarkan preferensi terkini', 'Rekomendasi');
+            
+            loadRecommendedKos();
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            loginModalEl.classList.remove('hidden');
+        }
+
+        // Close login modal
+        function closeLoginModal() {
+            loginModalEl.classList.add('hidden');
+        }
+
+        // Show register form (not implemented)
+        function showRegister() {
+            closeLoginModal();
+            alert('Fitur pendaftaran akan segera tersedia.');
+        }
+
+        // Login user
+        function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (email && password) {
+                // Simulate successful login
+                document.body.classList.add('logged-in');
+                loginBtn.textContent = 'Akun Saya';
+                closeLoginModal();
+                addNotification('Anda berhasil masuk ke akun Anda', 'Selamat Datang');
+            } else {
+                alert('Silakan masukkan email dan password yang valid.');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            kosModalEl.classList.add('hidden');
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            paymentModalEl.classList.add('hidden');
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Toggle notifications
+        function toggleNotifications() {
+            if (notificationCenterEl.classList.contains('hidden')) {
+                showNotifications();
+            } else {
+                hideNotifications();
+            }
+        }
+
+        // Show notifications
+        function showNotifications() {
+            // Mark all as read
+            notifications.forEach(notif => notif.read = true);
+            updateNotificationBadge();
+            
+            // Render notifications
+            notificationListEl.innerHTML = notifications.map(notif => `
+                <div class="p-2 border-b border-gray-100">
+                    <p class="font-semibold">${notif.title}</p>
+                    <p class="text-gray-600">${notif.message}</p>
+                    <p class="text-gray-400 text-xs mt-1">${notif.time}</p>
+                </div>
+            `).join('');
+            
+            notificationCenterEl.classList.remove('hidden');
+        }
+
+        // Hide notifications
+        function hideNotifications() {
+            notificationCenterEl.classList.add('hidden');
+        }
+
+        // Add new notification
+        function addNotification(message, title = 'Notifikasi') {
+            const newNotif = {
+                id: notifications.length + 1,
+                title: title,
+                message: message,
+                time: 'Baru saja',
+                read: false
+            };
+            
+            notifications.unshift(newNotif);
+            updateNotificationBadge();
+        }
+
+        // Update notification badge
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(notif => !notif.read).length;
+            
+            if (unreadCount > 0) {
+                notificationCountEl.textContent = unreadCount;
+                notificationCountEl.classList.remove('hidden');
+            } else {
+                notificationCountEl.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
